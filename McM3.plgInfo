@@ -1,0 +1,28 @@
+Author: Meer
+
+Version: # Plugin version
+    Major: 0
+    Minor: 1
+    Revision: 0
+
+Targets: # Low TitleId of games which are compatibles with this plugin (0 for all)
+
+Title: McM3 - Meer Cheat Manager 3ds
+
+Summary: A clean in-game cheat manager. Open with R + Down + Select.
+
+Description: |
+  McM3 (Meer Cheat Manager 3ds)
+
+  Open the menu in any game with R + Down + Select.
+
+  Features:
+    - Terminal style overlay on both screens
+    - Loads Action Replay codes from sd:/McM3/cheats or sd:/cheats
+    - Remembers which cheats you turned on, per game
+
+Compatibility: Any
+
+MemorySize: 2MiB
+
+UsePrivateMemory: false
