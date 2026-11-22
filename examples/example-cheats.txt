@@ -1,0 +1,9 @@
+[Example: 999 Money]
+{Example only. Copy a real cheat file for your game to sd:/McM3/cheats/<TitleID>.txt}
+00000000 000003E7
+
+[Example: Hold L for speed]
+{Button conditional: only runs while L is held}
+DD000000 00000200
+00000000 00000001
+D0000000 00000000
