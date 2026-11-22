@@ -1,0 +1,399 @@
+# McM3 quick picks: adjustable versions of Sharkive codes, shown first in the menu.
+# Each section starts with @<TitleID>. See tools/build_db.py.
+
+@0004000000055D00
+[Money (set amount)]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money
+
+[Rare Candies in Medicine slot 1 (set amount)]
+{Puts Rare Candies in the first slot of your Medicine pocket. Use them to level up your Pokemon.}
+$ 1 999 999 match=03E70032 shl=16 or=32
+08C67EBC 03E70032
+
+[Items pocket: set amount of every item]
+{Sets the amount of every item you own in the Items pocket.}
+$ 1 999 999 match=000003E7
+D3000000 08C67554
+C0000000 000000F0
+80000000 00000000
+10000002 000003E7
+D0000000 00000000
+DC000000 00000004
+D1000000 00000000
+D2000000 00000000
+
+[Medicine pocket: set amount of every item]
+{Sets the amount of every medicine you own.}
+$ 1 999 999 match=000003E7
+D3000000 08C67EBC
+C0000000 0000003F
+80000000 00000000
+10000002 000003E7
+D0000000 00000000
+DC000000 00000004
+D1000000 00000000
+D2000000 00000000
+
+[Berries pocket: set amount of every berry]
+{Sets the amount of every berry you own.}
+$ 1 999 999 match=000003E7
+D3000000 08C67FBC
+C0000000 00000040
+80000000 00000000
+10000002 000003E7
+D0000000 00000000
+DC000000 00000004
+D1000000 00000000
+D2000000 00000000
+
+[Level 100 after battle (press Y in battle) v1.5]
+{Hold Y during a battle: every Pokemon in your party is level 100 when it ends.}
+@from All Lvl 100 after Battle (Press Y) v1.5
+
+@0004000000055E00
+[Level 100 after battle (press Y in battle) v1.5]
+{Hold Y during a battle: every Pokemon in your party is level 100 when it ends.}
+@from All Lvl 100 after Battle (Press Y) v1.5
+
+@000400000011C400
+[Money (set amount)]
+{Sets your money to the amount you pick (up to 9,999,999). Made for game version 1.4.}
+$ 0 9999999 9999999 match=000F423E
+@from Money 999998
+
+[Money (set amount) v1.0]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money, Game v1.0
+
+[Rare Candy and level-up items (set amount)]
+{Rare Candies, EXP Candies and other level-up items in your Medicine pocket, in the amount you pick.}
+$ 1 999 999 qty=999 at=16
+@from Top Lv Up Items x999
+
+[Items pocket: set amount of every item]
+{Sets the amount of every item you own in the Items pocket.}
+$ 1 999 999 match=000003E7
+D3000000 08C6EC70
+C0000000 0000012C
+80000000 00000000
+10000002 000003E7
+D0000000 00000000
+DC000000 00000004
+D1000000 00000000
+D2000000 00000000
+
+[Medicine pocket: set amount of every item]
+{Sets the amount of every medicine you own.}
+$ 1 999 999 match=000003E7
+D3000000 08C6F5E0
+C0000000 00000040
+80000000 00000000
+10000002 000003E7
+D0000000 00000000
+DC000000 00000004
+D1000000 00000000
+D2000000 00000000
+
+[Berries pocket: set amount of every berry]
+{Sets the amount of every berry you own.}
+$ 1 999 999 match=000003E7
+D3000000 08C6F6E0
+C0000000 00000048
+80000000 00000000
+10000002 000003E7
+D0000000 00000000
+DC000000 00000004
+D1000000 00000000
+D2000000 00000000
+
+[Level 100 after battle (press Y in battle) v1.4]
+{Hold Y during a battle: every Pokemon in your party is level 100 when it ends.}
+@from All Lvl 100 after Battle (Press Y) v1.4
+
+@000400000011C500
+[Money (set amount) v1.0]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money, Game v1.0
+
+[Money (set amount) v1.4]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money, Game v1.4
+
+[Level 100 after battle (press Y in battle) v1.4]
+{Hold Y during a battle: every Pokemon in your party is level 100 when it ends.}
+@from All Lvl 100 after Battle (Press Y) v1.4
+
+@0004000000164800
+[Money (set amount) v1.0]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.0
+
+[Money (set amount) v1.1]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.1
+
+[Money (set amount) v1.2]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.2
+
+[Battle Points (set amount) v1.0]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.0
+
+[Battle Points (set amount) v1.1]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.1
+
+[Battle Points (set amount) v1.2]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.2
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.0]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.0
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.1]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.1
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.2]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.2
+
+[All items, set amount (hold SELECT+UP) v1.0]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.0
+
+[All items, set amount (hold SELECT+UP) v1.1]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.1
+
+[All items, set amount (hold SELECT+UP) v1.2]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.2
+
+[All berries, set amount (hold SELECT+UP) v1.0]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.0
+
+[All berries, set amount (hold SELECT+UP) v1.1]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.1
+
+[All berries, set amount (hold SELECT+UP) v1.2]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.2
+
+[EXP x10 after battles v1.0]
+{Pokemon earn ten times the usual EXP.}
+@from EXP x10 after battle(Includes figure of a decimal point) v1.0
+
+[EXP x10 after battles v1.1]
+{Pokemon earn ten times the usual EXP.}
+@from EXP x10 after battle(Includes figure of a decimal point) v1.1
+
+@0004000000175E00
+[Money (set amount) v1.0]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.0
+
+[Money (set amount) v1.1]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.1
+
+[Money (set amount) v1.2]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.2
+
+[Battle Points (set amount) v1.0]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.0
+
+[Battle Points (set amount) v1.1]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.1
+
+[Battle Points (set amount) v1.2]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.2
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.0]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.0
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.1]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.1
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.2]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.2
+
+[All items, set amount (hold SELECT+UP) v1.0]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.0
+
+[All items, set amount (hold SELECT+UP) v1.1]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.1
+
+[All items, set amount (hold SELECT+UP) v1.2]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.2
+
+[All berries, set amount (hold SELECT+UP) v1.0]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.0
+
+[All berries, set amount (hold SELECT+UP) v1.1]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.1
+
+[All berries, set amount (hold SELECT+UP) v1.2]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.2
+
+[EXP x10 after battles v1.0]
+{Pokemon earn ten times the usual EXP.}
+@from EXP x10 after battle(Includes figure of a decimal point) v1.0
+
+[EXP x10 after battles v1.1]
+{Pokemon earn ten times the usual EXP.}
+@from EXP x10 after battle(Includes figure of a decimal point) v1.1
+
+@00040000001B5000
+[Money (set amount) v1.0]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.0
+
+[Money (set amount) v1.1]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.1
+
+[Battle Points (set amount) v1.0]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.0
+
+[Battle Points (set amount) v1.1]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.1
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.0]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.0
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.1]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.1
+
+[All items, set amount (hold SELECT+UP) v1.0]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.0
+
+[All items, set amount (hold SELECT+UP) v1.1]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.1
+
+[All berries, set amount (hold SELECT+UP) v1.0]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.0
+
+[All berries, set amount (hold SELECT+UP) v1.1]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.1
+
+@00040000001B5100
+[Money (set amount) v1.1]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.1
+
+[Money (set amount) v1.0]
+{Sets your money to the amount you pick (up to 9,999,999).}
+$ 0 9999999 9999999 match=0098967F
+@from Max Money v1.0
+
+[Battle Points (set amount) v1.1]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.1
+
+[Battle Points (set amount) v1.0]
+{Sets your Battle Points to the amount you pick.}
+$ 0 9999 9999 match=0000270F
+@from BP9999 v1.0
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.1 & v1.2]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.1 & v1.2
+
+[All medicine incl. Rare Candy, set amount (hold SELECT+UP) v1.0]
+{Every medicine item, including Rare Candies to level up your Pokemon. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All MEDICINE x950 v1.0
+
+[All items, set amount (hold SELECT+UP) v1.1 & v1.2]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.1 & v1.2
+
+[All items, set amount (hold SELECT+UP) v1.0]
+{Every item in the Items pocket. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All ITEMS x950 v1.0
+
+[All berries, set amount (hold SELECT+UP) v1.1 & v1.2]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.1 & v1.2
+
+[All berries, set amount (hold SELECT+UP) v1.0]
+{Every berry. Turn it on, then hold SELECT + UP in game to fill your bag.}
+$ 1 999 950 qty=950 at=10
+@from (SELECT + UP)All BERRIES x950 v1.0
