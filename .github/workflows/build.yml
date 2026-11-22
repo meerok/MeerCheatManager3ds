@@ -1,0 +1,56 @@
+name: Build McM3
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: pablomk7/libctrpf:0.8.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build plugin
+        shell: bash
+        run: |
+          set -o pipefail
+          make 2>&1 | tee build.log
+
+      - name: Upload build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: McM3
+          path: |
+            build.log
+            McM3.3gx
+          if-no-files-found: warn
+
+  publish:
+    needs: build
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: McM3
+          path: out
+
+      - name: Push result to build-output branch
+        run: |
+          cd out
+          echo "status: ${{ needs.build.result }}" > STATUS.txt
+          echo "commit: ${{ github.sha }}" >> STATUS.txt
+          git init -q
+          git config user.name "McM3 CI"
+          git config user.email "ci@users.noreply.github.com"
+          git checkout -q -b build-output
+          git add -A
+          git commit -q -m "Build ${{ github.sha }} (${{ needs.build.result }})"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" build-output
