@@ -14,20 +14,14 @@
 
 namespace CTRPluginFramework
 {
-    // CTRPF keeps the "open the menu" combo here (libctrpf Preferences::MenuHotkeys).
-    // McM3 uses CTRPF's own menu loop so button reading, sleep mode and closing the
-    // game are all handled safely, and swaps CTRPF's menu for its own when it opens.
-    class Preferences
-    {
-    public:
-        static u32 MenuHotkeys;
-    };
-
     using namespace McM3;
 
-    static GameInfo             g_game;
-    static std::vector<Cheat>   g_cheats;
-    static volatile bool        g_exiting = false;
+    // McM3 runs its own small loop instead of CTRPF's PluginMenu, which needs too much
+    // memory to fit in 2 MiB (the most an Old 3DS can safely give a plugin).
+    // Buttons may only be read while the game is running normally: the process events
+    // below stop the loop before Luma unmaps anything (HOME Menu, sleep, closing the game).
+    static volatile bool g_exiting = false;     // game is closing: stop for good
+    static volatile bool g_suspended = false;   // HOME Menu or sleep: wait
 
     // Called before the game starts
     void PatchProcess(FwkSettings &settings)
@@ -49,96 +43,107 @@ namespace CTRPluginFramework
 
     static void OnProcessEvent(Process::Event event)
     {
-        if (event == Process::Event::EXIT)
+        switch (event)
         {
-            g_exiting = true;
-            McM3::g_closeMenu = true;
-        }
-        else if (event == Process::Event::SLEEP_ENTER)
-            McM3::g_closeMenu = true;   // lid closed: get out of the way
-    }
-
-    // CTRPF calls this when the menu combo is pressed. Show McM3's menu instead of
-    // CTRPF's, then return false so CTRPF's own menu never opens.
-    static bool OnMenuOpening(void)
-    {
-        if (!g_exiting)
-        {
-            McM3::g_closeMenu = false;
-            RunMenu(g_game, g_cheats);
-        }
-        return false;
-    }
-
-    // Runs once per game frame while McM3's menu is closed
-    static void EveryFrame(void)
-    {
-        // CTRPF can reload its saved settings, so keep McM3's combo in place
-        Preferences::MenuHotkeys = kMenuHotkey;
-
-        if (g_exiting)
-            return;
-
-        const u32 held = Controller::GetKeysDown();
-        for (auto &c : g_cheats)
-        {
-            if (!c.enabled || c.broken)
-                continue;
-            if (!RunCheat(c, held))
-                c.broken = true;   // stop running it and show it in red
+            case Process::Event::EXIT:
+                g_exiting = true;
+                McM3::g_closeMenu = true;
+                break;
+            case Process::Event::SLEEP_ENTER:
+            case Process::Event::HOME_ENTER:
+                g_suspended = true;
+                McM3::g_closeMenu = true;
+                break;
+            case Process::Event::SLEEP_EXIT:
+            case Process::Event::HOME_EXIT:
+            case Process::Event::SWAP_EXIT:
+                g_suspended = false;
+                break;
+            default:
+                break;
         }
     }
 
     int main(void)
     {
-        g_game.titleId = Process::GetTitleID();
-        g_game.version = Process::GetVersion();
-        Process::GetName(g_game.name);   // replaced by the real title if the database knows it
+        Process::SetProcessEventCallback(OnProcessEvent);
+
+        GameInfo game;
+        game.titleId = Process::GetTitleID();
+        game.version = Process::GetVersion();
+        Process::GetName(game.name);   // replaced by the real title if the database knows it
 
         char tid[20];
-        snprintf(tid, sizeof(tid), "%016llX", (unsigned long long)g_game.titleId);
-        g_game.tidString = tid;
+        snprintf(tid, sizeof(tid), "%016llX", (unsigned long long)game.titleId);
+        game.tidString = tid;
 
         // Auto detect: the title ID picks this game's cheats out of the built in database,
         // and the user's own file for it (if any) is loaded on top.
-        LoadCheats(g_game, g_cheats);
-        LoadEnabled(g_game, g_cheats);
+        std::vector<Cheat> cheats;
+        LoadCheats(game, cheats);
+        LoadEnabled(game, cheats);
 
         int active = 0;
-        for (const auto &c : g_cheats)
+        for (const auto &c : cheats)
             if (c.enabled)
                 active++;
 
         const Color green(61, 220, 132), dim(150, 160, 170), bg(10, 12, 14);
-        std::string detected = g_game.known ? g_game.name : ("Unknown game " + g_game.tidString);
+        std::string detected = game.known ? game.name : ("Unknown game " + game.tidString);
         OSD::Notify("McM3 detected: " + detected, green, bg);
         if (!BuiltinError().empty())
             OSD::Notify("McM3: " + BuiltinError(), Color(240, 180, 80), bg);
 
         std::string summary;
-        if (g_cheats.empty())
+        if (cheats.empty())
             summary = "No cheats yet. Add yours to sd:/McM3/cheats/";
         else
         {
-            summary = std::to_string(g_cheats.size()) + " cheats";
-            if (g_game.customCount > 0)
-                summary += " (" + std::to_string(g_game.customCount) + " yours)";
+            summary = std::to_string(cheats.size()) + " cheats";
+            if (game.customCount > 0)
+                summary += " (" + std::to_string(game.customCount) + " yours)";
             if (active > 0)
                 summary += ", " + std::to_string(active) + " on";
         }
         OSD::Notify(summary + "  |  R + Down + Select", dim, bg);
 
-        Process::SetProcessEventCallback(OnProcessEvent);
+        // true while the whole combo is held, so it only fires once per press
+        bool comboHeld = true;
 
-        PluginMenu menu("McM3", 0, 2, 2, "Meer Cheat Manager 3ds");
-        menu.ShowWelcomeMessage(false);
-        menu.SynchronizeWithFrame(true);
-        menu.OnOpening = OnMenuOpening;
-        menu += EveryFrame;
-        Preferences::MenuHotkeys = kMenuHotkey;
+        while (!g_exiting)
+        {
+            if (g_suspended)
+            {
+                comboHeld = true;   // don't open the menu from buttons held while away
+                svcSleepThread(50 * 1000 * 1000LL);
+                continue;
+            }
 
-        // Blocks until the game closes
-        menu.Run();
+            Controller::Update();
+            const u32 held = Controller::GetKeysDown();
+
+            // R + Down + Select in any order: open as soon as all three are down
+            const bool combo = (held & kMenuHotkey) == kMenuHotkey;
+            if (combo && !comboHeld && !g_exiting && !g_suspended)
+            {
+                comboHeld = true;
+                McM3::g_closeMenu = false;
+                RunMenu(game, cheats);
+                continue;
+            }
+            comboHeld = combo;
+
+            for (auto &c : cheats)
+            {
+                if (!c.enabled || c.broken)
+                    continue;
+                if (!RunCheat(c, held))
+                    c.broken = true;   // stop running it and show it in red
+            }
+
+            svcSleepThread(16 * 1000 * 1000LL);   // about once per frame
+        }
+
         return 0;
     }
 }
