@@ -14,6 +14,13 @@
 
 namespace CTRPluginFramework
 {
+    // CTRPF's "System heap": a pool it reserves at boot, mostly for its memory search.
+    namespace Heap
+    {
+        extern u8  *__ctrpf_heap;
+        extern u32  __ctrpf_heap_size;
+    }
+
     using namespace McM3;
 
     // McM3 runs its own small loop instead of CTRPF's PluginMenu, which needs too much
@@ -33,6 +40,20 @@ namespace CTRPluginFramework
 
         // Keep memory free for the game (matters on Old 3DS): no menu sounds from the SD card
         settings.TryLoadSDSounds = false;
+
+        // CTRPF reserves 1 MB here for its memory search, which McM3 turns off. In a 2 MiB
+        // plugin that, plus its 676 KB of screen buffers, left only ~100 KB for everything
+        // else, and opening the menu ran the heap dry (v0.2.3 crash when pressing the hotkey).
+        // The pool is only set up on first use, and nothing has used it yet at this point,
+        // so swap it for a small one. 128 KB still covers its other users (folder listing
+        // needs ~55 KB, line reader 4 KB).
+        static constexpr u32 kSmallPool = 0x20000;
+        if (Heap::__ctrpf_heap != nullptr && Heap::__ctrpf_heap_size > kSmallPool)
+        {
+            ::operator delete(Heap::__ctrpf_heap);
+            Heap::__ctrpf_heap = static_cast<u8 *>(::operator new(kSmallPool));
+            Heap::__ctrpf_heap_size = kSmallPool;
+        }
     }
 
     void OnProcessExit(void)
