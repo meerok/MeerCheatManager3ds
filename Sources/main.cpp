@@ -6,11 +6,16 @@
 #include <CTRPluginFramework.hpp>
 
 #include <cstdio>
+#include <cstdarg>
+#include <malloc.h>
+#include <unistd.h>
 #include <vector>
 
 #include "Cheats.hpp"
 #include "Database.hpp"
 #include "UI.hpp"
+
+extern "C" char *fake_heap_end;   // end of the plugin heap (newlib)
 
 namespace CTRPluginFramework
 {
@@ -21,6 +26,45 @@ namespace CTRPluginFramework
         extern u32  __ctrpf_heap_size;
     }
 
+    using namespace McM3;
+}
+
+namespace McM3
+{
+    using namespace CTRPluginFramework;
+
+    // Temporary: a step-by-step log on the SD card to find where startup or the menu stops.
+    void DebugLog(const char *fmt, ...)
+    {
+        static bool first = true;
+        static int lines = 0;
+        if (lines++ > 200)
+            return;
+
+        char msg[160];
+        va_list args;
+        va_start(args, fmt);
+        vsnprintf(msg, sizeof(msg), fmt, args);
+        va_end(args);
+
+        struct mallinfo mi = mallinfo();
+        const u32 unclaimed = (u32)(uintptr_t)fake_heap_end - (u32)(uintptr_t)sbrk(0);
+        char line[240];
+        const int n = snprintf(line, sizeof(line), "[%llu ms] %s | free %u KB (in heap %u + unclaimed %u)\n",
+            (unsigned long long)(svcGetSystemTick() / 268111ULL), msg,
+            (unsigned)((mi.fordblks + unclaimed) / 1024), (unsigned)(mi.fordblks / 1024), (unsigned)(unclaimed / 1024));
+
+        Directory::Create("/McM3");
+        File f;
+        const int mode = File::WRITE | File::CREATE | (first ? File::TRUNCATE : File::APPEND) | File::SYNC;
+        if (File::Open(f, "/McM3/log.txt", mode) == File::SUCCESS)
+            f.Write(line, (u32)n);
+        first = false;
+    }
+}
+
+namespace CTRPluginFramework
+{
     using namespace McM3;
 
     // McM3 runs its own small loop instead of CTRPF's PluginMenu, which needs too much
@@ -35,6 +79,7 @@ namespace CTRPluginFramework
     {
         // McM3 has its own cheat engine and menu: turn off CTRPF's built in
         // Action Replay handler (it would also read sd:/cheats) and memory search.
+        DebugLog("v0.2.4-debug: PatchProcess start, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
         settings.AllowActionReplay = false;
         settings.AllowSearchEngine = false;
 
@@ -54,6 +99,7 @@ namespace CTRPluginFramework
             Heap::__ctrpf_heap = static_cast<u8 *>(::operator new(kSmallPool));
             Heap::__ctrpf_heap_size = kSmallPool;
         }
+        DebugLog("PatchProcess done, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
     }
 
     void OnProcessExit(void)
@@ -87,6 +133,7 @@ namespace CTRPluginFramework
 
     int main(void)
     {
+        DebugLog("main start");
         Process::SetProcessEventCallback(OnProcessEvent);
 
         GameInfo game;
@@ -101,8 +148,10 @@ namespace CTRPluginFramework
         // Auto detect: the title ID picks this game's cheats out of the built in database,
         // and the user's own file for it (if any) is loaded on top.
         std::vector<Cheat> cheats;
+        DebugLog("loading cheats for %s", tid);
         LoadCheats(game, cheats);
         LoadEnabled(game, cheats);
+        DebugLog("loaded %u cheats, known=%d, db error='%s'", (unsigned)cheats.size(), (int)game.known, BuiltinError().c_str());
 
         int active = 0;
         for (const auto &c : cheats)
@@ -128,6 +177,10 @@ namespace CTRPluginFramework
         }
         OSD::Notify(summary + "  |  R + Down + Select", dim, bg);
 
+        DebugLog("notifications sent, entering loop");
+        u32 lastHeld = 0xFFFFFFFF;
+        int keyLogs = 0;
+
         // true while the whole combo is held, so it only fires once per press
         bool comboHeld = true;
 
@@ -142,12 +195,19 @@ namespace CTRPluginFramework
 
             Controller::Update();
             const u32 held = Controller::GetKeysDown();
+            if (held != lastHeld && keyLogs < 60)
+            {
+                DebugLog("keys %08X", (unsigned)held);
+                lastHeld = held;
+                keyLogs++;
+            }
 
             // R + Down + Select in any order: open as soon as all three are down
             const bool combo = (held & kMenuHotkey) == kMenuHotkey;
             if (combo && !comboHeld && !g_exiting && !g_suspended)
             {
                 comboHeld = true;
+                DebugLog("hotkey pressed, opening menu");
                 McM3::g_closeMenu = false;
                 RunMenu(game, cheats);
                 continue;

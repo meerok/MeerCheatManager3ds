@@ -452,8 +452,12 @@ namespace McM3
             st.cursor = st.scroll = 0;
         st.barY = kListY + (st.cursor - st.scroll) * kRowH;
 
+        DebugLog("menu: pausing");
         Process::Pause();
+        DebugLog("menu: paused");
         WaitForRelease();   // don't let the hotkey leak into the menu
+        DebugLog("menu: drawing");
+        int frames = 0;
 
         bool changed = false;
         bool running = true;
@@ -577,13 +581,17 @@ namespace McM3
             DrawBottom(OSD::GetBottomScreen(), cheats, st);
             OSD::SwapBuffers();
 
+            if (++frames == 1)
+                DebugLog("menu: first frame drawn");
             svcSleepThread(16 * 1000 * 1000LL);
         }
 
+        DebugLog("menu: closing");
         if (changed)
             SaveEnabled(game, cheats);
 
         WaitForRelease();   // don't let B leak into the game
         Process::Play();
+        DebugLog("menu: closed, game resumed");
     }
 }
