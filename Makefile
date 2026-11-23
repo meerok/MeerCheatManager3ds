@@ -15,7 +15,6 @@ PLGINFO 	:= 	McM3.plgInfo
 BUILD		:= 	Build
 INCLUDES	:= 	Includes
 SOURCES 	:= 	Sources
-DATA		:= 	Data
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -54,12 +53,7 @@ CPPFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES			:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 
 export LD 		:= 	$(CXX)
-BINFILES		:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.bin)))
-
-export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES))
-export OFILES_SRC	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
-export HFILES_BIN	:=	$(addsuffix .h,$(subst .,_,$(BINFILES)))
-export OFILES	:=	$(OFILES_BIN) $(OFILES_SRC)
+export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I $(CURDIR)/$(dir) ) \
 					$(foreach dir,$(LIBDIRS),-I $(dir)/include) \
 					-I $(CURDIR)/$(BUILD)
@@ -93,12 +87,10 @@ DEPENDS	:=	$(OFILES:.o=.d)
 #---------------------------------------------------------------------------------
 $(OUTPUT).3gx : $(OFILES)
 
-$(OFILES_SRC) : $(HFILES_BIN)
-
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data
 #---------------------------------------------------------------------------------
-%.bin.o %_bin.h :	%.bin
+%.bin.o	:	%.bin
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	@$(bin2o)

@@ -26,6 +26,6 @@ Description: |
 
 Compatibility: Any
 
-MemorySize: 5MiB
+MemorySize: 2MiB
 
 UsePrivateMemory: false
