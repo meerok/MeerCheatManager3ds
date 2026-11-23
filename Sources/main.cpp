@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Cheats.hpp"
+#include "Database.hpp"
 #include "UI.hpp"
 
 namespace CTRPluginFramework
@@ -35,6 +36,9 @@ namespace CTRPluginFramework
         // Action Replay handler (it would also read sd:/cheats) and memory search.
         settings.AllowActionReplay = false;
         settings.AllowSearchEngine = false;
+
+        // Keep memory free for the game (matters on Old 3DS): no menu sounds from the SD card
+        settings.TryLoadSDSounds = false;
     }
 
     void OnProcessExit(void)
@@ -108,6 +112,8 @@ namespace CTRPluginFramework
         const Color green(61, 220, 132), dim(150, 160, 170), bg(10, 12, 14);
         std::string detected = g_game.known ? g_game.name : ("Unknown game " + g_game.tidString);
         OSD::Notify("McM3 detected: " + detected, green, bg);
+        if (!BuiltinError().empty())
+            OSD::Notify("McM3: " + BuiltinError(), Color(240, 180, 80), bg);
 
         std::string summary;
         if (g_cheats.empty())
