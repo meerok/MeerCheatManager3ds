@@ -2,7 +2,7 @@ Author: Meer
 
 Version: # Plugin version
     Major: 0
-    Minor: 1
+    Minor: 2
     Revision: 0
 
 Targets: # Low TitleId of games which are compatibles with this plugin (0 for all)
@@ -15,8 +15,11 @@ Description: |
   McM3 (Meer Cheat Manager 3ds)
 
   Open the menu in any game with R + Down + Select.
+  Your own cheat files in sd:/McM3/cheats/ still work and show up first.
 
   Features:
+    - Detects your game and has built in cheats for 640+ games (Sharkive)
+    - Adjustable money, items, Battle Points and more for Pokemon and Smash
     - Terminal style overlay on both screens
     - Loads Action Replay codes from sd:/McM3/cheats or sd:/cheats
     - Remembers which cheats you turned on, per game
