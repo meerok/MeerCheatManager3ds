@@ -9,6 +9,8 @@ using namespace CTRPluginFramework;
 
 namespace McM3
 {
+    volatile bool g_closeMenu = false;
+
     // ------------------------------------------------------------------
     // Theme: dark terminal, soft contrast
     // ------------------------------------------------------------------
@@ -426,11 +428,14 @@ namespace McM3
 
     static void WaitForRelease(void)
     {
-        do
+        // Give up after ~2 seconds, or at once if the game is closing
+        for (int i = 0; i < 120 && !g_closeMenu; i++)
         {
             Controller::Update();
+            if (Controller::GetKeysDown() == 0)
+                break;
             svcSleepThread(16 * 1000 * 1000LL);
-        } while (Controller::GetKeysDown() != 0);
+        }
     }
 
     // ------------------------------------------------------------------
@@ -453,7 +458,7 @@ namespace McM3
         bool changed = false;
         bool running = true;
 
-        while (running)
+        while (running && !g_closeMenu)
         {
             Controller::Update();
             const int count = (int)cheats.size();
