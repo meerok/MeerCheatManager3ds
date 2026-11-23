@@ -35,17 +35,11 @@ jobs:
           path: Data/builtin.bin
 
   build:
-    needs: database
     runs-on: ubuntu-latest
     container:
       image: pablomk7/libctrpf:0.8.0
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: database
-          path: Data
 
       - name: Build plugin
         shell: bash
@@ -57,32 +51,45 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: McM3
+          name: plugin
           path: |
             build.log
             McM3.3gx
             McM3.elf
           if-no-files-found: warn
 
-  publish:
-    needs: build
+  package:
+    needs: [database, build]
     if: always()
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
-          name: McM3
+          name: plugin
           path: out
+
+      - uses: actions/download-artifact@v4
+        if: needs.build.result == 'success' && needs.database.result == 'success'
+        with:
+          name: database
+          path: db
+
+      - name: Add the cheat database to the end of McM3.3gx
+        if: needs.build.result == 'success' && needs.database.result == 'success'
+        run: python3 tools/pack.py out/McM3.3gx db/builtin.bin
 
       - name: Push result to build-output branch
         run: |
           cd out
-          echo "status: ${{ needs.build.result }}" > STATUS.txt
+          if [ "${{ needs.build.result }}" = "success" ] && [ "${{ needs.database.result }}" = "success" ]; then status=success; else status=failure; fi
+          echo "status: $status" > STATUS.txt
           echo "commit: ${{ github.sha }}" >> STATUS.txt
           git init -q
           git config user.name "McM3 CI"
           git config user.email "ci@users.noreply.github.com"
           git checkout -q -b build-output
           git add -A
-          git commit -q -m "Build ${{ github.sha }} (${{ needs.build.result }})"
+          git commit -q -m "Build ${{ github.sha }} ($status)"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" build-output
