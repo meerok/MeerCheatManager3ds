@@ -1,0 +1,38 @@
+name: Update UniStore
+
+# When a release is published, bump McM3.unistore so Universal-Updater
+# offers the new version to everyone who added the McM3 store.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unistore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Update McM3.unistore
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          NOTES: ${{ github.event.release.body }}
+        run: |
+          if [ -z "$TAG" ]; then TAG=$(git describe --tags --abbrev=0); fi
+          printf '%s' "$NOTES" > notes.txt
+          python3 tools/update_unistore.py "$TAG" notes.txt
+          rm notes.txt
+
+      - name: Commit
+        run: |
+          git config user.name "McM3 CI"
+          git config user.email "ci@users.noreply.github.com"
+          git add McM3.unistore
+          git diff --cached --quiet && exit 0
+          git commit -m "UniStore: $(python3 -c "import json;print(json.load(open('McM3.unistore'))['storeContent'][0]['info']['version'])")"
+          git push
