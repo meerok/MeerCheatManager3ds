@@ -1,0 +1,49 @@
+{
+    "storeInfo": {
+        "title": "McM3",
+        "author": "Meer",
+        "description": "McM3 (Meer Cheat Manager 3ds): an in-game cheat manager with built-in cheats for 644 games",
+        "url": "https://raw.githubusercontent.com/meerok/MeerCheatManager3ds/main/McM3.unistore",
+        "file": "McM3.unistore",
+        "version": 4,
+        "revision": 1
+    },
+    "storeContent": [
+        {
+            "info": {
+                "title": "McM3 (Meer Cheat Manager 3ds)",
+                "author": "Meer",
+                "version": "v0.2.2",
+                "category": [
+                    "utility"
+                ],
+                "console": [
+                    "3DS"
+                ],
+                "description": "In-game cheat manager plugin for Luma3DS. Detects your game, has built-in cheats for 644 games and lets you set exact amounts. Open it in game with R + Down + Select.",
+                "license": "gpl-3.0",
+                "last_updated": "2026-11-23 at 16:33 (UTC)",
+                "releasenotes": "Fixed crashes when opening McM3 or closing a game, the R + Down + Select combo now works on the first press, and games no longer crash on Old 3DS."
+            },
+            "McM3.3gx (all games)": [
+                {
+                    "type": "mkdir",
+                    "directory": "sdmc:/luma/plugins/"
+                },
+                {
+                    "type": "downloadRelease",
+                    "repo": "meerok/MeerCheatManager3ds",
+                    "file": "McM3.3gx",
+                    "output": "sdmc:/luma/plugins/default.3gx",
+                    "includePrereleases": false,
+                    "message": "Downloading McM3..."
+                },
+                {
+                    "type": "timeMsg",
+                    "seconds": 6,
+                    "message": "McM3 installed to /luma/plugins/default.3gx.\n\nTurn on Plugin Loader in Rosalina (L + Down + Select),\nstart a game, then press R + Down + Select."
+                }
+            ]
+        }
+    ]
+}

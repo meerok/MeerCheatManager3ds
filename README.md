@@ -136,6 +136,31 @@ On top of that, McM3 adds **quick picks**: adjustable versions of popular codes 
 
 ---
 
+## Updating
+
+McM3 has its own store for **[Universal-Updater](https://github.com/Universal-Team/Universal-Updater)**, so you can install and update it right from your 3DS.
+
+<table>
+<tr>
+<td><img src="docs/unistore-qr.png" width="160" alt="QR code for the McM3 UniStore"></td>
+<td>
+
+1. Open **Universal-Updater**.
+2. Go to **Settings → Select UniStore → +** and scan this QR code (or enter the URL below).
+3. Open the **McM3** store and download **McM3.3gx (all games)**.
+
+When a new version comes out, Universal-Updater shows it as an update. Download it again and you're done.
+
+</td>
+</tr>
+</table>
+
+```
+https://raw.githubusercontent.com/meerok/MeerCheatManager3ds/main/McM3.unistore
+```
+
+---
+
 ## Adding your own cheats
 
 Your own codes are loaded first and shown above the built-in ones. McM3 looks in two places, in this order:
@@ -211,6 +236,7 @@ sd:/
 - [x] Built-in cheats for 644 games
 - [x] Adjustable amounts (money, items and more)
 - [x] Only show codes that match your game's version (Pokemon)
+- [x] Updates through Universal-Updater
 - [ ] Download new cheats right from the 3DS
 - [ ] Community ratings (works / broken) for each code
 - [ ] Search and favourites
