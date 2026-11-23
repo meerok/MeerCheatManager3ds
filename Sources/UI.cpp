@@ -120,7 +120,27 @@ namespace McM3
         int    repeatTimer = 0;
         std::string status;          // short message on the bottom prompt line
         int    statusTimer = 0;
+
+        // Number editor for adjustable cheats
+        bool   editing = false;
+        u32    editValue = 0;
+        int    editDigit = 0;            // 0 = ones, 1 = tens, ...
+        int    editRepeat = 0;
     };
+
+    static int DigitCount(u32 v)
+    {
+        int n = 1;
+        while (v >= 10) { v /= 10; n++; }
+        return n;
+    }
+
+    static u32 Pow10(int n)
+    {
+        u32 p = 1;
+        while (n-- > 0) p *= 10;
+        return p;
+    }
 
     static int CountEnabled(const std::vector<Cheat> &cheats)
     {
@@ -146,7 +166,7 @@ namespace McM3
         s.DrawRect(0, 0, kTopW, kHeaderH, Theme::Panel);
         s.DrawRect(0, kHeaderH, kTopW, 1, Theme::AccentDim);
         Text(s, " McM3 ", 4, 4, Theme::Bg, Theme::Accent);
-        std::string title = game.name.empty() ? game.tidString : game.name;
+        std::string title = game.known ? game.name : (game.name.empty() ? "unknown game" : game.name);
         char ver[16];
         snprintf(ver, sizeof(ver), "v%u", (unsigned)game.version);
         std::string right = game.tidString + " " + ver;
@@ -195,7 +215,23 @@ namespace McM3
                 Text(s, box, 12, y + 2, boxCol, bg);
 
                 const Color &nameCol = selected ? Theme::Text : (c.enabled ? Theme::Text : Theme::Dim);
-                Text(s, Fit(c.name, (kTopW - 50) / kCharW), 36, y + 2, nameCol, bg);
+                int nameChars = (kTopW - 50) / kCharW;
+                if (c.HasValue())
+                {
+                    std::string val = FormatNumber(c.value);
+                    int vx = kTopW - 16 - (int)val.size() * kCharW;
+                    Text(s, val, vx, y + 2, c.enabled ? Theme::Accent : Theme::Faint, bg);
+                    nameChars = (vx - 36) / kCharW - 1;
+                }
+                Text(s, Fit(c.display, nameChars), 36, y + 2, nameCol, bg);
+
+                // Thin divider between groups: quick picks / your cheats / built in
+                if (idx + 1 < (int)cheats.size())
+                {
+                    const Cheat &n = cheats[idx + 1];
+                    if (c.quick != n.quick || c.custom != n.custom)
+                        s.DrawRect(12, y + kRowH - 1, kTopW - 30, 1, Theme::Line);
+                }
             }
 
             // Scrollbar
@@ -218,15 +254,83 @@ namespace McM3
         char foot[64];
         snprintf(foot, sizeof(foot), "%d cheats  /  %d active", (int)cheats.size(), CountEnabled(cheats));
         Text(s, foot, 8, fy + 3, Theme::Dim, Theme::Panel);
-        if (!game.sourcePath.empty())
         {
-            std::string src = Fit("sd:" + game.sourcePath.substr(0, game.sourcePath.rfind('/') + 1), 30);
-            Text(s, src, kTopW - 8 - (int)src.size() * kCharW, fy + 3, Theme::Faint, Theme::Panel);
+            std::string info;
+            if (game.customCount > 0)
+                info += std::to_string(game.customCount) + " yours";
+            if (game.builtinCount > 0)
+                info += std::string(info.empty() ? "" : "  ") + std::to_string(game.builtinCount) + " built-in";
+            if (game.hiddenCount > 0)
+                info += "  +" + std::to_string(game.hiddenCount) + " other ver.";
+            info = Fit(info, 36);
+            Text(s, info, kTopW - 8 - (int)info.size() * kCharW, fy + 3, Theme::Faint, Theme::Panel);
         }
+    }
+
+    static void DrawEditor(const Screen &s, const Cheat &c, MenuState &st)
+    {
+        s.DrawRect(0, 0, kBotW, kH, Theme::Bg);
+        s.DrawRect(0, 0, kBotW, kHeaderH, Theme::Panel);
+        s.DrawRect(0, kHeaderH, kBotW, 1, Theme::AccentDim);
+        Text(s, "$ set value", 6, 4, Theme::Accent, Theme::Panel);
+
+        const int cols = (kBotW - 16) / kCharW;
+        int y = kHeaderH + 10;
+        for (const auto &l : Wrap(c.display, cols))
+        {
+            Text(s, l, 8, y, Theme::Text, Theme::Bg);
+            y += 11;
+        }
+        y += 14;
+
+        // Big value box with the selected digit highlighted
+        const int digits = DigitCount(c.vmax);
+        std::string num = std::to_string(st.editValue);
+        num = std::string(digits - (int)num.size(), '0') + num;
+        const int cellW = 14, boxW = digits * cellW + 16;
+        const int bx = (kBotW - boxW) / 2;
+        s.DrawRect(bx, y, boxW, 30, Theme::Row);
+        s.DrawRect(bx, y + 29, boxW, 1, Theme::AccentDim);
+        for (int i = 0; i < digits; i++)
+        {
+            int cx = bx + 8 + i * cellW;
+            bool sel = (digits - 1 - i) == st.editDigit;
+            if (sel)
+            {
+                s.DrawRect(cx, y + 4, cellW - 2, 22, Theme::Accent);
+                Text(s, std::string(1, num[i]), cx + 3, y + 10, Theme::Bg, Theme::Accent);
+            }
+            else
+                Text(s, std::string(1, num[i]), cx + 3, y + 10, Theme::Text, Theme::Row);
+        }
+        y += 40;
+
+        std::string pretty = "= " + FormatNumber(st.editValue);
+        Text(s, pretty, (kBotW - (int)pretty.size() * kCharW) / 2, y, Theme::Accent, Theme::Bg);
+        y += 14;
+        std::string range = "range " + FormatNumber(c.vmin) + " - " + FormatNumber(c.vmax);
+        Text(s, range, (kBotW - (int)range.size() * kCharW) / 2, y, Theme::Faint, Theme::Bg);
+
+        int cy = kH - 44;
+        s.DrawRect(0, cy - 4, kBotW, 1, Theme::Line);
+        Text(s, "Up/Down change   Left/Right digit", 8, cy, Theme::Dim, Theme::Bg);
+        Text(s, c.enabled ? "L min  R max  A save  X off  B back" : "L min  R max   A turn on   B back", 8, cy + 12, Theme::Dim, Theme::Bg);
+
+        int py = kH - 14;
+        std::string prompt = "mcm3> set " + FormatNumber(st.editValue);
+        Text(s, prompt, 8, py, Theme::Accent, Theme::Bg);
+        if ((st.frame / 20) % 2 == 0)
+            s.DrawRect(8 + (int)prompt.size() * kCharW + 1, py, kCharW, 10, Theme::Accent);
     }
 
     static void DrawBottom(const Screen &s, const std::vector<Cheat> &cheats, MenuState &st)
     {
+        if (st.editing && !cheats.empty())
+        {
+            DrawEditor(s, cheats[st.cursor], st);
+            return;
+        }
+
         s.DrawRect(0, 0, kBotW, kH, Theme::Bg);
 
         // Header
@@ -241,16 +345,21 @@ namespace McM3
         {
             const Cheat &c = cheats[st.cursor];
 
-            for (const auto &l : Wrap(c.name, cols))
+            for (const auto &l : Wrap(c.display, cols))
             {
                 Text(s, l, 8, y, Theme::Text, Theme::Bg);
                 y += 11;
             }
             y += 2;
-            Text(s, c.enabled ? "status: ON" : "status: off", 8, y,
-                 c.enabled ? Theme::Accent : Theme::Dim, Theme::Bg);
+            std::string status = c.enabled ? "status: ON" : "status: off";
+            if (c.HasValue())
+                status += "   value: " + FormatNumber(c.value);
+            Text(s, status, 8, y, c.enabled ? Theme::Accent : Theme::Dim, Theme::Bg);
             if (c.broken)
                 Text(s, "  unsupported code", 8 + 11 * kCharW, y, Theme::Bad, Theme::Bg);
+            y += 12;
+            Text(s, c.custom ? "from: your cheat file" : (c.quick ? "from: McM3 quick picks" : "from: built-in (Sharkive)"),
+                 8, y, Theme::Faint, Theme::Bg);
             y += 16;
 
             const int maxY = kH - 50;
@@ -266,6 +375,8 @@ namespace McM3
             else
             {
                 std::string note = c.note.empty() ? "no description for this cheat." : c.note;
+                if (c.HasValue())
+                    note += "\n\npress A to pick the amount.";
                 for (const auto &l : Wrap(note, cols))
                 {
                     if (y > maxY) { Text(s, "...", 8, y, Theme::Faint, Theme::Bg); break; }
@@ -331,6 +442,7 @@ namespace McM3
         static MenuState st;   // keep cursor position between openings
         st.open = 0.f;
         st.statusTimer = 0;
+        st.editing = false;
         if (st.cursor >= (int)cheats.size())
             st.cursor = st.scroll = 0;
         st.barY = kListY + (st.cursor - st.scroll) * kRowH;
@@ -345,6 +457,56 @@ namespace McM3
         {
             Controller::Update();
             const int count = (int)cheats.size();
+
+            if (st.editing)
+            {
+                Cheat &c = cheats[st.cursor];
+                const int digits = DigitCount(c.vmax);
+
+                bool up   = Controller::IsKeyDown(Key::DPadUp)   || Controller::IsKeyDown(Key::CPadUp);
+                bool down = Controller::IsKeyDown(Key::DPadDown) || Controller::IsKeyDown(Key::CPadDown);
+                if (up || down)
+                {
+                    if (st.editRepeat == 0 || (st.editRepeat > 18 && st.editRepeat % 3 == 0))
+                    {
+                        u32 step = Pow10(st.editDigit);
+                        if (up)
+                            st.editValue = (st.editValue + step > c.vmax || st.editValue + step < st.editValue) ? c.vmax : st.editValue + step;
+                        else
+                            st.editValue = (st.editValue < c.vmin + step) ? c.vmin : st.editValue - step;
+                    }
+                    st.editRepeat++;
+                }
+                else
+                    st.editRepeat = 0;
+
+                if (Controller::IsKeyPressed(Key::DPadLeft) && st.editDigit < digits - 1) st.editDigit++;
+                if (Controller::IsKeyPressed(Key::DPadRight) && st.editDigit > 0) st.editDigit--;
+                if (Controller::IsKeyPressed(Key::L)) st.editValue = c.vmin;
+                if (Controller::IsKeyPressed(Key::R)) st.editValue = c.vmax;
+
+                if (Controller::IsKeyPressed(Key::A))
+                {
+                    c.value = st.editValue;
+                    ApplyValue(c);
+                    c.enabled = true;
+                    c.broken = false;
+                    changed = true;
+                    st.editing = false;
+                    SetStatus(st, Fit(c.display, 26) + " = " + FormatNumber(c.value));
+                }
+                else if (Controller::IsKeyPressed(Key::X) && c.enabled)
+                {
+                    c.enabled = false;
+                    changed = true;
+                    st.editing = false;
+                    SetStatus(st, "disabled " + Fit(c.display, 30));
+                }
+                else if (Controller::IsKeyPressed(Key::B))
+                    st.editing = false;
+            }
+            else
+            {
 
             // Up / down with hold-to-repeat
             bool up   = Controller::IsKeyDown(Key::DPadUp)   || Controller::IsKeyDown(Key::CPadUp);
@@ -366,10 +528,20 @@ namespace McM3
             if (Controller::IsKeyPressed(Key::A) && count > 0)
             {
                 Cheat &c = cheats[st.cursor];
-                c.enabled = !c.enabled;
-                c.broken = false;
-                changed = true;
-                SetStatus(st, (c.enabled ? "enabled " : "disabled ") + Fit(c.name, 30));
+                if (c.HasValue())
+                {
+                    st.editing = true;
+                    st.editValue = c.value;
+                    st.editDigit = 0;
+                    st.editRepeat = 1;   // don't treat a held direction as a change
+                }
+                else
+                {
+                    c.enabled = !c.enabled;
+                    c.broken = false;
+                    changed = true;
+                    SetStatus(st, (c.enabled ? "enabled " : "disabled ") + Fit(c.display, 30));
+                }
             }
 
             if (Controller::IsKeyPressed(Key::X) && count > 0)
@@ -385,6 +557,7 @@ namespace McM3
 
             if (Controller::IsKeyPressed(Key::B))
                 running = false;
+            }
 
             // Animations
             st.open = Lerp(st.open, 1.f, 0.28f);
