@@ -467,6 +467,9 @@ namespace McM3
 
             std::vector<Cheat> builtin;
             ParseCheatText(dbText, builtin);
+            std::string().swap(dbText);   // free the text before building the final list
+
+            out.reserve(out.size() + builtin.size());
             for (auto &c : builtin)
             {
                 bool dup = false;

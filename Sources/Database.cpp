@@ -212,9 +212,14 @@ namespace McM3
                 packed.clear();
                 packed.shrink_to_fit();
 
+                // First line is the game's name, the rest is cheat text (no extra copy)
                 size_t nl = unpacked.find('\n');
                 name = unpacked.substr(0, nl);
-                text = (nl == std::string::npos) ? std::string() : unpacked.substr(nl + 1);
+                if (nl == std::string::npos)
+                    unpacked.clear();
+                else
+                    unpacked.erase(0, nl + 1);
+                text.swap(unpacked);
                 flags = e.flags;
                 return true;
             }
