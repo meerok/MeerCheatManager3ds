@@ -17,6 +17,9 @@
 
 extern "C" char *fake_heap_end;   // end of the plugin heap (newlib)
 
+// CTRPF's task scheduler (a private static member, so reached by its symbol name)
+extern "C" u8 g_ctrpfScheduler[] __asm__("_ZN18CTRPluginFramework9Scheduler10_singletonE");
+
 namespace CTRPluginFramework
 {
     // CTRPF's "System heap": a pool it reserves at boot, mostly for its memory search.
@@ -80,7 +83,7 @@ namespace CTRPluginFramework
     {
         // McM3 has its own cheat engine and menu: turn off CTRPF's built in
         // Action Replay handler (it would also read sd:/cheats) and memory search.
-        DebugLog("McM3 v0.2.5: PatchProcess start, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
+        DebugLog("McM3 v0.2.6: PatchProcess start, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
         settings.AllowActionReplay = false;
         settings.AllowSearchEngine = false;
 
@@ -109,6 +112,21 @@ namespace CTRPluginFramework
         McM3::g_closeMenu = true;
     }
 
+    // Called first thing when the game closes, before CTRPF's own exit steps. Those end by
+    // running static destructors, which free the memory of CTRPF's 4 scheduler threads.
+    // One of them runs on the system core, which many games (Pokemon X/Y...) never give
+    // time to, so it only starts once the game is shutting down: after its memory was
+    // freed. It then jumped to garbage (the crash when closing the game, and the same
+    // crash in v0.2.3). Forgetting the pointers keeps that memory intact; the process
+    // is ending, so nothing leaks.
+    // Layout (CTRPF 0.8.0): Scheduler { Core _cores[4]; ... }, Core is 0x24 bytes,
+    // Core::thread (ThreadEx) at +0x0C, ThreadEx::_thread at +0x04.
+    static void KeepSchedulerThreadsAlive(void)
+    {
+        for (int i = 0; i < 4; i++)
+            *reinterpret_cast<void **>(g_ctrpfScheduler + i * 0x24 + 0x0C + 0x04) = nullptr;
+    }
+
     static void OnProcessEvent(Process::Event event)
     {
         switch (event)
@@ -116,6 +134,7 @@ namespace CTRPluginFramework
             case Process::Event::EXIT:
                 g_exiting = true;
                 McM3::g_closeMenu = true;
+                KeepSchedulerThreadsAlive();
                 break;
             case Process::Event::SLEEP_ENTER:
             case Process::Event::HOME_ENTER:
