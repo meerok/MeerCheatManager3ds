@@ -61,6 +61,7 @@ jobs:
           path: |
             build.log
             McM3.3gx
+            McM3.elf
           if-no-files-found: warn
 
   publish:
