@@ -83,7 +83,7 @@ namespace CTRPluginFramework
     {
         // McM3 has its own cheat engine and menu: turn off CTRPF's built in
         // Action Replay handler (it would also read sd:/cheats) and memory search.
-        DebugLog("McM3 v0.2.6: PatchProcess start, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
+        DebugLog("McM3 v0.2.7: PatchProcess start, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
         settings.AllowActionReplay = false;
         settings.AllowSearchEngine = false;
 
