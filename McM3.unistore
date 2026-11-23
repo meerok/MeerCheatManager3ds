@@ -6,14 +6,14 @@
         "url": "https://raw.githubusercontent.com/meerok/MeerCheatManager3ds/main/McM3.unistore",
         "file": "McM3.unistore",
         "version": 4,
-        "revision": 2
+        "revision": 3
     },
     "storeContent": [
         {
             "info": {
                 "title": "McM3 (Meer Cheat Manager 3ds)",
                 "author": "Meer",
-                "version": "v0.2.3",
+                "version": "v0.2.4",
                 "category": [
                     "utility"
                 ],
@@ -22,8 +22,8 @@
                 ],
                 "description": "In-game cheat manager plugin for Luma3DS. Detects your game, has built-in cheats for 644 games and lets you set exact amounts. Open it in game with R + Down + Select.",
                 "license": "gpl-3.0",
-                "last_updated": "2026-11-23 at 16:55 (UTC)",
-                "releasenotes": "## Fixes\n\n- **Fixed \"Fatal plugin error: abort() called\" when starting any game in v0.2.2.** v0.2.2 ran out of memory at startup. McM3 now uses its own lightweight loop again and loads about 240 KB, so it fits easily in 2 MiB.\n- **No more crashes when closing a game or going to the HOME Menu.** McM3 stops reading buttons as soon as the game starts closing, and pauses while you're on the HOME Menu or the lid is closed.\n- **R + Down + Select opens McM3 on the first press**, in any button order.\n- **Old 3DS:** McM3 stays at 2 MiB, so it doesn't take memory the system needs (#1).\n\n## Install\n\n1. Download **`McM3.3gx`** below.\n2. Put it at `sd:/luma/plugins/default.3gx` (replace the old one).\n3. Make sure **Plugin Loader** is on in Rosalina (L + Down + Select).\n4. Start a game, wait for \"McM3 detected\", then press **R + Down + Select**.\n\nUsing Universal-Updater with the McM3 UniStore? This shows up there as an update.\n\nFound a problem? [Open an issue](https://github.com/meerok/MeerCheatManager3ds/issues) with the game, your console (Old or New 3DS) and a photo of the error screen."
+                "last_updated": "2026-11-23 at 17:14 (UTC)",
+                "releasenotes": "Fixes the crash right after pressing **R + Down + Select** in v0.2.3 (prefetch abort, PC 06386668).\n\n**What was wrong:** at 2 MiB, CTRPF (the framework McM3 is built on) kept 1 MB of memory reserved for a cheat-search tool that McM3 doesn't use, on top of its 676 KB of screen buffers. That left only about 100 KB for everything else, so opening the menu ran out of memory and crashed.\n\n**Fix:** McM3 now shrinks that unused reserve to 128 KB at startup, freeing about 900 KB. It still uses 2 MiB, so Old 3DS stays safe.\n\n**Install:** put `McM3.3gx` in `sd:/luma/plugins/` and rename it to `default.3gx`, or update through Universal-Updater."
             },
             "McM3.3gx (all games)": [
                 {
