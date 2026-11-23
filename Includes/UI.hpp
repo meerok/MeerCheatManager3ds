@@ -14,7 +14,7 @@ namespace McM3
     // Set when the game is closing or the console is going to sleep: the menu closes at once.
     extern volatile bool g_closeMenu;
 
-    // Temporary debug log: appends a line to sd:/McM3/log.txt (with free memory).
+    // Startup/menu log: appends a line to sd:/McM3/log.txt (with free memory).
     void DebugLog(const char *fmt, ...);
 
     // Opens the overlay. Pauses the game, blocks until the user closes it.
