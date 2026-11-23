@@ -232,9 +232,14 @@ python3 tools/build_db.py Sharkive Sharkive.wiki
 
 # 2. Build the plugin (needs devkitARM and libctrpf)
 make
+
+# 3. Add the database to the end of the plugin file
+python3 tools/pack.py McM3.3gx Data/builtin.bin
 ```
 
-Or skip the setup: every push to `main` is built by GitHub Actions. It builds the database from a pinned Sharkive version, then compiles the plugin in the `pablomk7/libctrpf:0.8.0` Docker image.
+The database sits at the end of `McM3.3gx`, after the parts Luma loads into memory. McM3 reads only the running game's cheats from the SD card, so the 644-game database doesn't take up any of the game's memory.
+
+Or skip the setup: every push to `main` is built by GitHub Actions. It builds the database from a pinned Sharkive version, compiles the plugin in the `pablomk7/libctrpf:0.8.0` Docker image, then packs the two together.
 
 ---
 
