@@ -33,7 +33,8 @@ namespace McM3
 {
     using namespace CTRPluginFramework;
 
-    // Temporary: a step-by-step log on the SD card to find where startup or the menu stops.
+    // A short step-by-step log on the SD card (sd:/McM3/log.txt, rewritten every time a game
+    // starts), so a hang or crash can be pinned down from a tester's SD card.
     void DebugLog(const char *fmt, ...)
     {
         static bool first = true;
@@ -79,7 +80,7 @@ namespace CTRPluginFramework
     {
         // McM3 has its own cheat engine and menu: turn off CTRPF's built in
         // Action Replay handler (it would also read sd:/cheats) and memory search.
-        DebugLog("v0.2.4-debug: PatchProcess start, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
+        DebugLog("McM3 v0.2.5: PatchProcess start, pool %u KB", (unsigned)(Heap::__ctrpf_heap_size / 1024));
         settings.AllowActionReplay = false;
         settings.AllowSearchEngine = false;
 
@@ -178,8 +179,6 @@ namespace CTRPluginFramework
         OSD::Notify(summary + "  |  R + Down + Select", dim, bg);
 
         DebugLog("notifications sent, entering loop");
-        u32 lastHeld = 0xFFFFFFFF;
-        int keyLogs = 0;
 
         // true while the whole combo is held, so it only fires once per press
         bool comboHeld = true;
@@ -195,12 +194,6 @@ namespace CTRPluginFramework
 
             Controller::Update();
             const u32 held = Controller::GetKeysDown();
-            if (held != lastHeld && keyLogs < 60)
-            {
-                DebugLog("keys %08X", (unsigned)held);
-                lastHeld = held;
-                keyLogs++;
-            }
 
             // R + Down + Select in any order: open as soon as all three are down
             const bool combo = (held & kMenuHotkey) == kMenuHotkey;

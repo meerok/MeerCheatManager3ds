@@ -28,30 +28,6 @@ namespace McM3
     static std::string g_error;
     static u32         g_count = 0;
 
-    // Asks Luma's plugin loader where this plugin was loaded from (plg:ldr command 10)
-    static std::string PluginPathFromLuma(void)
-    {
-        Handle handle = 0;
-        if (R_FAILED(srvGetServiceHandle(&handle, "plg:ldr")))
-            return "";
-
-        static char path[256];
-        memset(path, 0, sizeof(path));
-
-        u32 *cmdbuf = getThreadCommandBuffer();
-        cmdbuf[0] = IPC_MakeHeader(10, 0, 2);
-        cmdbuf[1] = IPC_Desc_Buffer(255, IPC_BUFFER_RW);
-        cmdbuf[2] = (u32)(uintptr_t)path;
-
-        Result res = svcSendSyncRequest(handle);
-        if (R_SUCCEEDED(res))
-            res = cmdbuf[1];
-        svcCloseHandle(handle);
-
-        path[255] = 0;
-        return R_SUCCEEDED(res) ? std::string(path) : std::string();
-    }
-
     static bool ReadAt(File &file, u64 offset, void *dst, u32 size)
     {
         return file.Seek((s64)offset, File::SET) == File::SUCCESS && file.Read(dst, size) == File::SUCCESS;
@@ -62,11 +38,9 @@ namespace McM3
     {
         std::vector<std::string> candidates;
 
-        std::string fromLuma = PluginPathFromLuma();
-        if (!fromLuma.empty())
-            candidates.push_back(fromLuma);
-
-        // Older Luma versions can't tell us the path: try the usual places
+        // Luma loads plugins from these two places. (v0.2.4 asked Luma for the exact path
+        // through srv, but "plg:ldr" is a port, not a service, so that call waited forever
+        // and McM3 never finished starting.)
         char tidFolder[40];
         snprintf(tidFolder, sizeof(tidFolder), "/luma/plugins/%016llX", (unsigned long long)titleId);
         if (Directory::IsExists(tidFolder) == 1)
