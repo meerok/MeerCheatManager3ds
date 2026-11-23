@@ -8,13 +8,44 @@ on:
 permissions:
   contents: write
 
+env:
+  # Pinned so every build uses the same cheat codes. Bump these to pull in new Sharkive codes.
+  SHARKIVE_COMMIT: aeab5fd3b001ed22c013efd1a02b092575d825ed
+  SHARKIVE_WIKI_COMMIT: 7da31f88e36d151c7c22d0ec88c9da07cc2f4e7b
+
 jobs:
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Sharkive and its game list
+        run: |
+          git clone -q https://github.com/FlagBrew/Sharkive.git sharkive
+          git -C sharkive checkout -q "$SHARKIVE_COMMIT"
+          git clone -q https://github.com/FlagBrew/Sharkive.wiki.git sharkive-wiki
+          git -C sharkive-wiki checkout -q "$SHARKIVE_WIKI_COMMIT"
+
+      - name: Build cheat database
+        run: python3 tools/build_db.py sharkive sharkive-wiki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: database
+          path: Data/builtin.bin
+
   build:
+    needs: database
     runs-on: ubuntu-latest
     container:
       image: pablomk7/libctrpf:0.8.0
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: database
+          path: Data
 
       - name: Build plugin
         shell: bash
