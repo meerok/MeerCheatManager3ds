@@ -11,7 +11,7 @@ It detects the game you're playing, ships with cheats for 640+ games, and lets y
 
 ![Platform](https://img.shields.io/badge/platform-Nintendo%203DS-3ddc84?style=flat-square)
 ![Luma3DS](https://img.shields.io/badge/requires-Luma3DS%20plugin%20loader-262c32?style=flat-square)
-![Version](https://img.shields.io/badge/version-0.2.6-3ddc84?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.2.7-3ddc84?style=flat-square)
 ![Games](https://img.shields.io/badge/built--in%20games-644-3ddc84?style=flat-square)
 ![License](https://img.shields.io/badge/license-GPLv3-262c32?style=flat-square)
 ![Status](https://img.shields.io/badge/status-early%20preview-f0b450?style=flat-square)
