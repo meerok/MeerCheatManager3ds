@@ -140,7 +140,7 @@ On top of that, McM3 adds **quick picks**: adjustable versions of popular codes 
 
 ## Updating
 
-McM3 has its own store for **[Universal-Updater](https://github.com/Universal-Team/Universal-Updater)**, so you can install and update it right from your 3DS.
+McM3 is in the process of getting its own store for **[Universal-Updater](https://github.com/Universal-Team/Universal-Updater)**, so you can hopefully install and update it right from your 3DS.
 
 <table>
 <tr>
